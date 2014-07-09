@@ -52,6 +52,9 @@ public class Server {
     public void closeSocket() throws IOException{
         clientSocket.close();
     }
+    public void closeServer() throws IOException{
+        serverSocket.close();
+    }
     public String getClientIP(){
         return clientSocket.getInetAddress().getHostAddress();
     }
