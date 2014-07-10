@@ -23,6 +23,7 @@ public class PsychicUI extends javax.swing.JFrame {
      * Creates new form NewJFrame
      */
     public Server psychicServer;
+    public Server stepServer;
     public static boolean isStarted=false;
     public PsychicUI() {
         super("Psychic Server");
@@ -255,6 +256,7 @@ public class PsychicUI extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             isStarted=false;
+            psychicServer.closeSocket();
             psychicServer.closeServer();
             jButton1.setEnabled(true);
             jButton2.setEnabled(false);
