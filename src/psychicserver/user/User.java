@@ -11,13 +11,28 @@ package psychicserver.user;
  * @author GawainGuo
  */
 public class User {
-    public String userName;
+    private String userName;
     public float orientation;
-    public float coordinate_x;
-    public float coordinate_y;
-    public User(String name, float x,float y){
+    private float coordinate_x;
+    private float coordinate_y;
+    private float stepLength=0.6f;
+    public User(String name){
         userName=name;
+    }
+    public void initialCoordinate(float x, float y){
         coordinate_x=x;
         coordinate_y=y;
+    }
+    public void stepDetect(){
+        
+    }
+    public float getCoordinate_x(){
+        return coordinate_x;
+    }
+    public float getCoordinate_y(){
+        return coordinate_y;
+    }
+    public String getUserName(){
+        return userName;
     }
 }
