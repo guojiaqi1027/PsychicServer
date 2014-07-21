@@ -15,7 +15,7 @@ public class User {
     public float orientation;
     private float coordinate_x;
     private float coordinate_y;
-    private float stepLength=0.6f;
+    private float stepLength=1.0f;
     public User(String name){
         userName=name;
     }
@@ -24,7 +24,8 @@ public class User {
         coordinate_y=y;
     }
     public void stepDetect(){
-        
+        coordinate_x=coordinate_x+stepLength*(float)Math.sin(orientation*Math.PI/180);
+        coordinate_y=coordinate_y+stepLength*(float)Math.cos(orientation*Math.PI/180);
     }
     public float getCoordinate_x(){
         return coordinate_x;

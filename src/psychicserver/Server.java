@@ -20,6 +20,8 @@ public class Server {
     private int port;
     private ServerSocket serverSocket;
     private Socket clientSocket;
+    private BufferedReader in=null;
+    private PrintWriter out=null;
     public Server(int p){
         port=p;
     }
@@ -32,21 +34,21 @@ public class Server {
         System.out.println("SERVER_SOCKETSTART");
         clientSocket=serverSocket.accept();
         System.out.println("SERVER_CONNECTED");
+        in=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        out=new PrintWriter(clientSocket.getOutputStream());
     }
     public String receiveMessage() throws IOException{
         String message;
-        ReceiveThread receive=new ReceiveThread(clientSocket);
-        receive.run();
-        message=receive.getMessage();
+        //ReceiveThread receive=new ReceiveThread(clientSocket);
+        message=in.readLine();
         return message;
         
     }
     public String sendMessage(String m) throws IOException{
-        String message;
-        SendThread send=new SendThread(clientSocket,m);
-        send.run();
-        message=send.getMessage();
-        return message;
+        out.println(m);
+        out.flush();
+        //SendThread send=new SendThread(clientSocket,m);
+        return m;
         
     }
     public void closeSocket() throws IOException{
@@ -62,6 +64,8 @@ public class Server {
         return InetAddress.getLocalHost().getHostAddress();
     }
 }
+
+/*
 class ReceiveThread implements Runnable{
     private Socket client;
     private BufferedReader in=null;
@@ -107,4 +111,4 @@ class SendThread implements Runnable{
         
     }
     
-}
+}*/
