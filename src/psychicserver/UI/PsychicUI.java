@@ -34,6 +34,9 @@ public class PsychicUI extends javax.swing.JFrame {
     public static boolean isStarted=false;
     private int x=0;
     private int y=0;
+    private boolean isConnected8000=false;
+    private boolean isConnected8002=false;
+    
     /*
     Initial 
     */
@@ -56,10 +59,11 @@ public class PsychicUI extends javax.swing.JFrame {
                 try {
                     psychicServer.startServer();
                     psychicServer.buildUpConnection();
+                    isConnected8000=true;
                 } catch (IOException ex) {
                     Logger.getLogger(PsychicUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                while(true){
+                while(isConnected8000){
                 try {
                System.out.println("MAIN_CONNECTION_IP "+psychicServer.getServerIP());  
                setClientIp8000(psychicServer.getClientIP());
@@ -84,9 +88,6 @@ public class PsychicUI extends javax.swing.JFrame {
                //appendText8000(psychicServer.sendMessage(returnMessage));
                //appendText8000("To: "+psychicServer.getClientIP());
                //appendText8000(" ");
-               /*
-               Close socket after send back
-               */
                
            } catch (IOException ex) {
   
@@ -104,10 +105,11 @@ public class PsychicUI extends javax.swing.JFrame {
                 stepServer=new Server(8002);
                 try {
                     stepServer.startServer();
+                    isConnected8002=true;
                 } catch (IOException ex) {
                     Logger.getLogger(PsychicUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                while(true){
+                while(isConnected8002){
                 System.out.println("MAIN_CONNECTION_ISSTARTED");
                 try {
                System.out.println("MAIN_CONNECTION_WAIT");  
@@ -115,21 +117,21 @@ public class PsychicUI extends javax.swing.JFrame {
                stepServer.buildUpConnection();
                setClientIp8002(stepServer.getClientIP());
                System.out.println("MAIN_CONNECTION_CONNECTED");
-               appendText8002("Connected from "+stepServer.getClientIP());
-               appendText8002(" ");
-               appendText8002("Message Receive:");
+               //appendText8002("Connected from "+stepServer.getClientIP());
+               //appendText8002(" ");
+               //appendText8002("Message Receive:");
                String receiveMessage=stepServer.receiveMessage();
                appendText8002(receiveMessage);
-               appendText8002("From: "+stepServer.getClientIP());
-               appendText8002(" ");
+               //appendText8002("From: "+stepServer.getClientIP());
+               //appendText8002(" ");
                /*
                Process message here
                */
                String returnMessage=processMessage(receiveMessage);
-               appendText8002("Message Send:");
-               appendText8002(stepServer.sendMessage(returnMessage));
-               appendText8002("To: "+stepServer.getClientIP());
-               appendText8002(" ");
+               //appendText8002("Message Send:");
+               //appendText8002(stepServer.sendMessage(returnMessage));
+               //appendText8002("To: "+stepServer.getClientIP());
+               //appendText8002(" ");
                stepServer.closeSocket();
            } catch (IOException ex) {
               
@@ -583,7 +585,9 @@ public class PsychicUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/*
+    Start connection threads
+    */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
 
@@ -605,20 +609,27 @@ public class PsychicUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    /*
+     * Stop connecting threads
+     * Clear log windows
+     */
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        Connection8000.stop();
-        Connection8002.stop();
+
+        isConnected8000=false;
+        isConnected8002=false;
         jButton1.setEnabled(true);
         jButton2.setEnabled(false);
         jTextArea1.setText("");
         jTextArea2.setText("");
         ClientLabel8000.setText("");
         ClientLabel8002.setText("");
+        mTrackingPanel=new TrackingPanel();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
         jTextArea1.setText("");
+        jTextArea2.setText("");
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
@@ -655,6 +666,14 @@ public class PsychicUI extends javax.swing.JFrame {
             }
         });
     }
+    /*
+    Processing Received Message
+    Using # as divider
+    LOGIN#username
+    INI#x(initial x-coordinate)#y(initial y-coordinate)
+    ORI#orien(update orientation)
+    STEP#1(detect step and update coordinates, draw tracking panel)
+    */
     public String processMessage(String msg){
         StringTokenizer str=new StringTokenizer(msg,"#");
         String type=str.nextToken();
@@ -662,7 +681,6 @@ public class PsychicUI extends javax.swing.JFrame {
             case "LOGIN":
                 String username=str.nextToken();
                 PsychicServer.mUser=new User(username);
-                mTrackingPanel.resetPaint();
                 return "true";
             case "INI":
                 float x=Float.valueOf(str.nextToken());
@@ -677,9 +695,13 @@ public class PsychicUI extends javax.swing.JFrame {
                 return null;
             case "STEP":
             {
-                int stepDetect=Integer.valueOf(str.nextToken());
-                if(stepDetect==1&&PsychicServer.mUser!=null){
+                float stepDetect=Float.valueOf(str.nextToken());
+                if(stepDetect!=0.f&&PsychicServer.mUser!=null){
                     PsychicServer.mUser.stepDetect();
+                    /*
+                     * Start at mid of panel(200,200)
+                     * Zoom in 5 times
+                     */
                     mTrackingPanel.updateCoordinate((int)(5*PsychicServer.mUser.getCoordinate_x())+200, (int)(-5*PsychicServer.mUser.getCoordinate_y()+100));
                     
                 }
